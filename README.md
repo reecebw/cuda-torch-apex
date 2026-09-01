@@ -54,7 +54,13 @@ RUN . /opt/foundry-env/bin/activate && \
     pip install -c /opt/torch-constraints.txt -e '/opt/yourpackage[all]'
 ```
 
-Get the digest for the current tag with:
+Current build of `cu128-torch2.11.0` (2026-09-01):
+
+```
+ghcr.io/reecebw/cuda-torch-apex@sha256:3aee00adfba311c712696490f3e4765bd611d2ace5cc59d12df93b162c3574d4
+```
+
+Re-check the digest for the tag with:
 
 ```bash
 docker buildx imagetools inspect ghcr.io/reecebw/cuda-torch-apex:cu128-torch2.11.0
