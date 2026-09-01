@@ -88,6 +88,12 @@ RUN pip install --no-cache-dir /tmp/wheels/apex-*.whl && rm -rf /tmp/wheels
 # resolving a different torch and breaking apex's ABI binding.
 RUN echo "torch==${TORCH_VERSION}" > /opt/torch-constraints.txt
 
+# The CUDA base images assert a driver >= their own CUDA version, which the
+# nvidia container runtime enforces at start. torch's cu128 wheels only need
+# minor-version compatibility, so clear it rather than fail to start on an
+# older-driver host.
+ENV NVIDIA_REQUIRE_CUDA=""
+
 # Loading apex's compiled extensions needs no GPU, so this ABI check runs here.
 RUN python -c "import torch, apex, amp_C, fused_layer_norm_cuda; print(torch.__version__)"
 
