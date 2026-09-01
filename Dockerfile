@@ -4,11 +4,15 @@
 #
 # apex is compiled in the `devel` stage against the exact torch below and
 # emitted as a wheel; the `runtime` stage installs that wheel on top of a CUDA
-# *runtime* base, so the ~10 GB CUDA toolkit and the apex build tree never
+# runtime base, so the ~10 GB CUDA toolkit and the apex build tree never
 # reach the published image.
 
 ARG CUDA_VERSION=12.8.1
 ARG UBUNTU_VERSION=24.04
+# `base` carries cudart plus the NVIDIA container-runtime env vars, and nothing
+# else: torch's cu128 wheels bundle their own cuBLAS/cuDNN/NCCL, so the
+# `runtime` flavour would be a second 2 GB copy of libraries nothing loads.
+ARG CUDA_RUNTIME_FLAVOR=base
 
 # ── devel: compile apex, emit a wheel ───────────────────────────────────
 
@@ -51,7 +55,7 @@ RUN cd /opt/apex && \
 
 # ── runtime: torch + the apex wheel, no toolkit ─────────────────────────
 
-FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION} AS runtime
+FROM nvidia/cuda:${CUDA_VERSION}-${CUDA_RUNTIME_FLAVOR}-ubuntu${UBUNTU_VERSION} AS runtime
 
 ARG PYTHON=python3.12
 ARG TORCH_VERSION=2.11.0

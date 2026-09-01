@@ -5,7 +5,7 @@ GPU training/inference stack:
 
 | Component | Version |
 |---|---|
-| CUDA runtime | 12.8.1 (`nvidia/cuda:12.8.1-runtime-ubuntu24.04`) |
+| CUDA runtime | 12.8.1 (`nvidia/cuda:12.8.1-base-ubuntu24.04`) |
 | Python | 3.12, in a venv at `/opt/foundry-env` |
 | torch | `2.11.0+cu128` (from `https://download.pytorch.org/whl/cu128`) |
 | NVIDIA apex | compiled `--cpp_ext --cuda_ext` for `TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"` |
@@ -25,6 +25,13 @@ Also in the image:
 
 Not in the image: the CUDA **toolkit** (`nvcc`, ~10 GB installed) and apex's
 build tree. Both exist only in the `devel` build stage.
+
+The runtime stage sits on the CUDA **`base`** flavour (cudart plus the NVIDIA
+container-runtime env vars, ~0.1 GB compressed) rather than `runtime`
+(~2.2 GB): torch's cu128 wheels ship their own cuBLAS/cuDNN/cuFFT/NCCL, so the
+`runtime` flavour is a second copy of libraries nothing loads. Build with
+`--build-arg CUDA_RUNTIME_FLAVOR=runtime` if a consumer ever needs the system
+copies.
 
 ## apex is ABI-bound to torch
 
